@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="tradelinesQuery-processFlow" doc:id="5cb7094f-3e82-47e9-a96a-74ca0b85baf8" >
+		<ee:transform doc:name="Transform Message" doc:id="3862d054-9f63-4cad-8d7d-3a84f74b5bb1" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="sqlclause" ><![CDATA[%dw 2.0
+var request = payload
+var Id = if(request.Id !=null) request.Id else null
+var firstName = if(request.firstName !=null) request.firstName else null
+var lastName = if(request.lastName !=null) request.lastName else null
+output application/java
+---
+if(Id != null) "Id=:Id"
+else if (lastName != null and firstName != null) "lastName=:lastName AND firstName=:firstName"
+else if (lastName != null and firstName == null) "lastName=:lastName"
+else if (firstName != null and lastName == null) "firstName=:firstName"
+else null
+]]></ee:set-variable>
+			</ee:variables>
+		
+</ee:transform>
+		<db:select doc:name="Select" doc:id="1b8ed6b4-dee5-4880-a7e5-f03a420dcc9e" config-ref="Database_Config">
+			<db:sql ><![CDATA[#['SELECT id,creditorname,firstname,lastname,minpaymentpercentage,balance FROM customer.tradelines WHERE $(vars.sqlClause)']]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	"Id": payload.Id,
+    "firstName": payload.firstName,
+    "lastName": payload.lastName
+}]]]></db:input-parameters>
+		</db:select>
+		<choice doc:name="Choice" doc:id="06e11ee2-359c-4bae-aa63-0c62d58aaad6" >
+			<when expression="#[payload != null and sizeOf(payload) &gt; 0]">
+				<ee:transform doc:name="Transform Message" doc:id="5f77bf93-7a75-47d1-8aff-9dc7ef295c7d">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{	
+	"Id": payload[0].id,
+	"creditorName": trim(payload[0].creditorName),
+    "firstName": trim(payload[0].firstName),
+    "lastName": trim(payload[0].lastName),
+    "minPaymentPercentage": trim(payload[0].minPaymentPercentage),
+    "balance": trim(payload[0].balance),
+    "status" : "Success",
+    "transactionId" : vars.transactionId
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="61e088f7-dd2e-4f4f-8646-c31fe35e7fe3" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{	
+    "status" : "No Record found !!",
+    "transactionId" : vars.transactionId
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Logger" doc:id="cdb9ffff-4388-47e9-85db-f9b732e9d533" message="#[payload]"/>
+		<error-handler ref="global-exception-handlerError"/>
+	</flow>
+</mule>

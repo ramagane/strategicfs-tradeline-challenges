@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<http:request-config name="HTTP_Request_File_configuration" doc:name="HTTP Request configuration" doc:id="34602aea-b8a2-4c5c-bcf9-f913c7f7983d" >
+		<http:request-connection protocol="HTTPS"/>
+	</http:request-config>
+	<flow name="tradelinesLoad-processFlow" doc:id="c6ce52a8-9b14-4bae-87d1-553fe9da4853" >
+		<choice doc:name="Choice" doc:id="5fe6539b-ca2d-4e1f-b459-60676072a741" >
+			<when expression="#[payload.load != null and payload.load == 'DeleteandLoad']">
+				<db:delete doc:name="Delete" doc:id="9493b73e-6a84-448e-819f-8e05994ffe6b" config-ref="Database_Config">
+					<db:sql ><![CDATA[delete from customer.tradelines]]></db:sql>
+				</db:delete>
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="Logger" doc:id="f9e7f430-3346-4ec8-9635-a0f7301f61f0" message="*******NO-ACTION*****"/>
+			</otherwise>
+		</choice>
+		<http:request method="GET" doc:name="Download-File-Data" doc:id="3c80dcb3-22f3-434a-8ebe-d2ba8496dccb" config-ref="HTTP_Request_File_configuration" outputMimeType="application/json" url="${file.url}"/>
+		<ee:transform doc:name="Transform Message" doc:id="47e54adb-80f8-49d6-a45c-e2080b452406">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<batch:job jobName="tradelinesLoad-processBatch_Job" doc:id="0712fca5-2a6d-4cb6-a99a-dbc4eb5e73e4" maxFailedRecords="-1">
+			<batch:process-records >
+				<batch:step name="Batch_Step" doc:id="b10327cb-e62b-4672-8889-e9cf3a653f69" >
+					<batch:aggregator doc:name="Batch Aggregator" doc:id="525d0680-161d-4e68-a25b-b5a079222ed0" size="2">
+						<db:bulk-insert doc:name="Bulk insert" doc:id="8bdd3a9e-2c15-4077-be4a-3ef1a78860c5" config-ref="Database_Config">
+							<db:sql ><![CDATA[INSERT INTO customer.tradelines (creditorname,firstname,lastname,minpaymentpercentage,balance) VALUES (:creditorName,:firstName,:lastName,:minPaymentPercentage,:balance)]]></db:sql>
+						</db:bulk-insert>
+					</batch:aggregator>
+					<ee:transform doc:name="Transform Message" doc:id="2f091c24-9b4d-4cf2-bc82-2e0a0a7cec41" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	"creditorName": payload.creditorName,
+    "firstName": payload.firstName,
+    "lastName": payload.lastName,
+    "minPaymentPercentage": payload.minPaymentPercentage,
+    "balance": payload.balance,
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+				</batch:step>
+			</batch:process-records>
+			<batch:on-complete >
+				<ee:transform doc:name="Transform Message" doc:id="ead1e2ed-19e1-45e5-9374-fad86b8683db" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<logger level="INFO" doc:name="Logger" doc:id="dbd3a0a0-088a-4743-b662-67e11e65a5f0" message="****BATCH-JOB-COMPLETED*** ++ #[payload]" />
+			</batch:on-complete>
+		</batch:job>
+		<ee:transform doc:name="Transform Message" doc:id="6afdab00-3d96-4fce-b649-93c6ca98ec45" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+"status": "Success",
+"transactionId": vars.transactionId
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler ref="global-exception-handlerError"/>
+	</flow>
+</mule>

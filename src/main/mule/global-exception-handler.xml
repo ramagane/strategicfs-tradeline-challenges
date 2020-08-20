@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<error-handler name="global-exception-handlerError" doc:id="fff38079-a810-49a9-a011-d454fe70052f" >
+		
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="a9343658-ae43-44a1-af2a-7adc7738c97d" type="EXPRESSION">
+			<ee:transform doc:name="Transform Message" doc:id="b68b7eb3-2e21-4a1c-9e2c-ca3e413f56c1" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	error: {
+		 reason: "Mulesoft Dataweave exception",
+		 code: if (attributes.statusCode == null) error.muleMessage.attributes.StatusCode else attributes.statusCode,
+		 message: if (error.exception.cause == null) error.exception.message else error.exception.cause.detailMessage,
+	     transactionId: if (vars.transactionId == null) correlationId else vars.transactionId
+	}
+}
+]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<flow-ref doc:name="global-exception-handlerFlow" doc:id="65bc1640-806b-4028-b6c0-c14530e52487" name="global-exception-handlerFlow"/>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="33bfdaa3-326c-4fab-8f25-53ed2c4feea0" type="DB:BAD_SQL_SYNTAX, DB:CONNECTIVITY, DB:QUERY_EXECUTION, DB:RETRY_EXHAUSTED">
+			<ee:transform doc:name="exception payload" doc:id="24be3bb5-51e0-41fd-9101-32af94d3078a" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	error: {
+		 reason: "Database Error",
+		 code: if (error.errorType == null)  error.errorType else error.muleMessage.attributes.StatusCode,
+		 message: if (error.exception.cause == null) error.exception.message else error.exception.cause.detailMessage,
+	     transactionId: if (vars.transactionId == null) correlationId else vars.transactionId
+	}
+}
+]]></ee:set-payload>
+				
+</ee:message>
+			</ee:transform>
+			<flow-ref doc:name="global-exception-handlerFlow" doc:id="1c436e27-6874-4259-8fae-3addf5dfebb2" name="global-exception-handlerFlow"/>
+		
+</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="d8f93e6b-98f3-4776-8f5d-da99c52ab082" type="HTTP:BAD_REQUEST, HTTP:CLIENT_SECURITY, HTTP:CONNECTIVITY, HTTP:FORBIDDEN, HTTP:METHOD_NOT_ALLOWED, HTTP:NOT_ACCEPTABLE, HTTP:NOT_FOUND, HTTP:SECURITY, HTTP:SERVICE_UNAVAILABLE, HTTP:TOO_MANY_REQUESTS, HTTP:UNSUPPORTED_MEDIA_TYPE">
+			<ee:transform doc:name="exception payload" doc:id="8a54e4d9-ea42-4364-a905-c60e08e230c3" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	error: {
+		 reason: "http exception",
+		 code: if (error.errorType == null)  error.errorType else error.muleMessage.attributes.StatusCode,
+		 message: if (error.exception.cause == null) error.exception.message else error.exception.cause.detailMessage,
+	     transactionId: if (vars.transactionId == null) vars.dbRequest.StatusRequest[0].TID else vars.logger_sys.TID
+	}
+}
+]]></ee:set-payload>
+				
+</ee:message>
+			</ee:transform>
+			<flow-ref doc:name="global-exception-handlerFlow" doc:id="8f36f23e-fabf-4c90-bd48-79abe3f6104b" name="global-exception-handlerFlow"/>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="96d0adf1-377b-4563-a8fa-13125ea0f25e" type="HTTP:TIMEOUT, HTTP:INTERNAL_SERVER_ERROR">
+			<ee:transform doc:name="exception payload" doc:id="22510b66-478c-45dd-ab92-011215ebafac" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	error: {
+		 reason: "http timeout exception",
+		 code: if (error.errorType == null)  error.errorType else error.muleMessage.attributes.StatusCode,
+		 message: if (error.exception.cause == null) error.exception.message else error.exception.cause.detailMessage,
+	     transactionId: if (vars.transactionId == null) vars.dbRequest.StatusRequest[0].TID else vars.logger_sys.TID
+	}
+}
+]]></ee:set-payload>
+				
+</ee:message>
+			</ee:transform>
+			<flow-ref doc:name="global-exception-handlerFlow" doc:id="f4bbd2bb-195b-462d-a4a2-6e88b5792be8" name="global-exception-handlerFlow"/>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="2539b095-b01d-49d5-baa8-7adf50c5d3cb" >
+		<ee:transform doc:name="exception payload" doc:id="d41bf280-f9c2-45e1-8855-8a2b986139f7" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	error: {
+		 reason: "Mule exception",
+		 code: if (error.errorType == null)  error.errorType else error.muleMessage.attributes.StatusCode,
+		 message: if (error.exception.cause == null) error.exception.message else error.exception.cause.detailMessage,
+	     transactionId: if (vars.transactionId == null) vars.dbRequest.StatusRequest[0].TID else vars.logger_sys.TID
+	}
+}
+]]></ee:set-payload>
+				
+</ee:message>
+			</ee:transform>
+			<flow-ref doc:name="global-exception-handlerFlow" doc:id="59949d28-3025-4226-82fd-0d82a5b5c560" name="global-exception-handlerFlow"/>
+		</on-error-propagate>
+		
+	</error-handler>
+	<flow name="global-exception-handlerFlow" doc:id="d4c2a880-70a0-4d93-a7d7-8b052588a348" >
+		<logger level="INFO" doc:name="Logger" doc:id="b86d5e2c-0cc7-4411-922d-9ad9ee7091f2" message="#[payload]"/>
+
+	    
+	</flow>
+</mule>

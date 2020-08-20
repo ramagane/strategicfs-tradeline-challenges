@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="tradelinesUpdate-processFlow" doc:id="3460868e-206d-44ed-865b-170e4778e48d" >
+		<ee:transform doc:name="Transform Message" doc:id="c7a3d0cd-813d-4ebc-82fb-ee8bcae064f1" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	"Id": payload.Id,
+	"creditorName": payload.creditorName,
+    "firstName": payload.firstName,
+    "lastName": payload.lastName,
+    "minPaymentPercentage": payload.minPaymentPercentage,
+    "balance": payload.balance,
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<db:update doc:name="Update" doc:id="59a4970e-a440-4577-9d85-390a20add7d1" config-ref="Database_Config" target="UpdatePayload">
+			<db:sql ><![CDATA[UPDATE customer.tradelines SET creditorname = :creditorName,firstname = :firstName, lastname = :lastName, minpaymentpercentage = :minPaymentPercentage, balance = :balance WHERE Id = :Id]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	"Id": payload.Id,
+	"creditorName": payload.creditorName,
+    "firstName": payload.firstName,
+    "lastName": payload.lastName,
+    "minPaymentPercentage": payload.minPaymentPercentage,
+    "balance": payload.balance,
+}]]]></db:input-parameters>
+		</db:update>
+		<logger level="INFO" doc:name="Logger" doc:id="864a6e9d-401f-43da-b77f-77e372ad0f2e" message="#[payload]" />
+		<db:select doc:name="Select" doc:id="6cfffc3e-249d-4ab8-8703-184e1765add1" config-ref="Database_Config">
+			<db:sql ><![CDATA[select id,creditorname,firstname,lastname,minpaymentpercentage,balance from customer.tradelines where Id = :Id]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	"Id": payload.Id
+}]]]></db:input-parameters>
+		</db:select>
+		<choice doc:name="Choice" doc:id="275fca52-5b7f-4d90-b936-4464b136efa8" >
+			<when expression="#[payload != null and sizeOf(payload) &gt; 0]">
+				<ee:transform doc:name="Transform Message" doc:id="2cd0da55-6b3d-41ad-9932-1c916c1cc827">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{	
+	"Id": payload[0].id,
+	"creditorName": trim(payload[0].creditorName),
+    "firstName": trim(payload[0].firstName),
+    "lastName": trim(payload[0].lastName),
+    "minPaymentPercentage": trim(payload[0].minPaymentPercentage),
+    "balance": trim(payload[0].balance),
+    "status" : "Success",
+    "transactionId" : vars.transactionId
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="d1e0d371-e3c9-4754-ac6b-443056f8f4b7" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{	
+    "status" : "No Record Updated !!",
+    "transactionId" : vars.transactionId
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Logger" doc:id="f5605f48-702f-4581-9e52-6e820c7d8c98" message="#[payload]"/>
+		<error-handler ref="global-exception-handlerError"/>
+	</flow>
+</mule>

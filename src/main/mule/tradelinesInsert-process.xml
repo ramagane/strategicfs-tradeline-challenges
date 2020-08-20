@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="tradelinesInsert-processFlow" doc:id="e111ea65-c00e-471c-979b-e7e7b2f853d4" >
+		<ee:transform doc:name="Transform Message" doc:id="38323b53-4a3d-46eb-96fc-8952fdb425e7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	"creditorName": payload.creditorName,
+    "firstName": payload.firstName,
+    "lastName": payload.lastName,
+    "minPaymentPercentage": payload.minPaymentPercentage,
+    "balance": payload.balance,
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<db:insert doc:name="Insert" doc:id="8002e8b6-623a-41f9-97b8-1d5f55b4907a" config-ref="Database_Config" target="insertOutput">
+			<db:sql ><![CDATA[INSERT INTO customer.tradelines (creditorname,firstname,lastname,minpaymentpercentage,balance) VALUES (:creditorName,:firstName,:lastName,:minPaymentPercentage,:balance);]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	"creditorName": payload.creditorName,
+    "firstName": payload.firstName,
+    "lastName": payload.lastName,
+    "minPaymentPercentage": payload.minPaymentPercentage,
+    "balance": payload.balance,
+}]]]></db:input-parameters>
+		</db:insert>
+		<logger level="INFO" doc:name="Logger" doc:id="b365e714-9d35-4a5d-a3e6-9670ee22136c" message="#[payload]" />
+		<db:select doc:name="Select" doc:id="1d5f5cc3-10c1-455d-8429-c842f0abc82d" config-ref="Database_Config">
+			<db:sql ><![CDATA[select id,creditorname,firstname,lastname,minpaymentpercentage,balance from customer.tradelines where firstname = :firstName and creditorName = :creditorName  and lastName = :lastName]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	"creditorName": payload.creditorName,
+    "firstName": payload.firstName,
+    "lastName": payload.lastName
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="9715a2b0-4a16-4b2f-9ea5-29e447d1429f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{	
+	"Id": payload[0].id,
+	"creditorName": trim(payload[0].creditorName),
+    "firstName": trim(payload[0].firstName),
+    "lastName": trim(payload[0].lastName),
+    "minPaymentPercentage": trim(payload[0].minPaymentPercentage),
+    "balance": trim(payload[0].balance),
+    "status" : "Success",
+    "transactionId" : vars.transactionId
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="07847d9e-2b69-49b4-b4c4-50d3273b648d" message="#[payload]"/>
+		<error-handler ref="global-exception-handlerError"/>
+	</flow>
+</mule>

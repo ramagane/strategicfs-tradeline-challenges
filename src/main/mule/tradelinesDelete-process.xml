@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="tradelinesdelete-processFlow" doc:id="1e6073bf-73e2-435a-89c6-f980e9fdeefc" >
+		<ee:transform doc:name="Transform Message" doc:id="e258559c-dc91-475c-9060-bd348c3de9f6" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="sqlclause" ><![CDATA[%dw 2.0
+var request = payload
+var Id = if(request.Id !=null and request.Id != '') request.Id else null
+var firstName = if(request.firstName !=null and request.firstName != '') request.firstName else null
+var lastName = if(request.lastName !=null and request.lastName != '') request.lastName else null
+output application/java
+---
+if(Id != null) "Id=:Id"
+else if (lastName != null and firstName != null) "lastName=:lastName AND firstName=:firstName"
+else if (lastName != null and firstName == null) "lastName=:lastName"
+else if (firstName != null and lastName == null) "firstName=:firstName"
+else null
+]]></ee:set-variable>
+			</ee:variables>
+		
+</ee:transform>
+		<choice doc:name="Choice" doc:id="c7d1afaf-a63a-4324-bc2e-b06d3378bdcc" >
+			<when expression="#[vars.sqlclause != null]">
+				<db:delete doc:name="Delete" doc:id="91b189d0-9fee-41e5-b272-9635d1c8ae66" config-ref="Database_Config">
+			<db:sql><![CDATA[#['DELETE FROM customer.tradelines WHERE $(vars.sqlClause)']]]></db:sql>
+			<db:input-parameters><![CDATA[#[{
+	"Id": payload.Id,
+    "firstName": payload.firstName,
+    "lastName": payload.lastName
+}]]]></db:input-parameters>
+		</db:delete>
+				<ee:transform doc:name="Transform Message" doc:id="8a05a86b-41b7-4a07-afc4-85929e3b5535">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{	
+    "status" : "Success",
+    "transactionId" : vars.transactionId
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+			</when>
+			<otherwise >
+				<raise-error type="CUSTOMER:INVALID_DATA" description="In order to delete tradeline data , Id or FirstName or LastName is required."/>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Logger" doc:id="1bf27cd0-a025-4581-a1d1-72f3ec6c4cb6" message="#[payload]"/>
+		<error-handler ref="global-exception-handlerError"/>
+	</flow>
+</mule>
