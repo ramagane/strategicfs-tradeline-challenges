@@ -1,0 +1,396 @@
+{
+	"info": {
+		"_postman_id": "57bf79c8-ca15-4a8d-a34e-4017f499a039",
+		"name": "strategicfs-tradeline-challenge",
+		"description": "strategicfs-tradeline-challenge",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "tradelinesQuery-QuerybyId",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "1D2BFd2bbf7f4B44a149bf6116FE7574",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "e80916f07c9849cbaa11bbd2e3187631",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"Id\": 77\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://strategicfs-tradeline-challenge.us-e2.cloudhub.io/api/tradelines/tradelinesQuery",
+					"protocol": "https",
+					"host": [
+						"strategicfs-tradeline-challenge",
+						"us-e2",
+						"cloudhub",
+						"io"
+					],
+					"path": [
+						"api",
+						"tradelines",
+						"tradelinesQuery"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "tradelinesQuery-QuerybyFirstName",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "1D2BFd2bbf7f4B44a149bf6116FE7574",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "e80916f07c9849cbaa11bbd2e3187631",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"firstName\": \"Suman\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://strategicfs-tradeline-challenge.us-e2.cloudhub.io/api/tradelines/tradelinesQuery",
+					"protocol": "https",
+					"host": [
+						"strategicfs-tradeline-challenge",
+						"us-e2",
+						"cloudhub",
+						"io"
+					],
+					"path": [
+						"api",
+						"tradelines",
+						"tradelinesQuery"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "tradelinesQuery-QuerybyLastname",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "1D2BFd2bbf7f4B44a149bf6116FE7574",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "e80916f07c9849cbaa11bbd2e3187631",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"lastName\": \"Tester79\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://strategicfs-tradeline-challenge.us-e2.cloudhub.io/api/tradelines/tradelinesQuery",
+					"protocol": "https",
+					"host": [
+						"strategicfs-tradeline-challenge",
+						"us-e2",
+						"cloudhub",
+						"io"
+					],
+					"path": [
+						"api",
+						"tradelines",
+						"tradelinesQuery"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "tradelinesLoad-ALL",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "1D2BFd2bbf7f4B44a149bf6116FE7574",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "e80916f07c9849cbaa11bbd2e3187631",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"load\": \"ALL\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://strategicfs-tradeline-challenge.us-e2.cloudhub.io/api/tradelines/tradelinesLoad",
+					"protocol": "https",
+					"host": [
+						"strategicfs-tradeline-challenge",
+						"us-e2",
+						"cloudhub",
+						"io"
+					],
+					"path": [
+						"api",
+						"tradelines",
+						"tradelinesLoad"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "tradelinesLoad-DeleteandLoad",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "1D2BFd2bbf7f4B44a149bf6116FE7574",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "e80916f07c9849cbaa11bbd2e3187631",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"load\": \"DeleteandLoad\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://strategicfs-tradeline-challenge.us-e2.cloudhub.io/api/tradelines/tradelinesLoad",
+					"protocol": "https",
+					"host": [
+						"strategicfs-tradeline-challenge",
+						"us-e2",
+						"cloudhub",
+						"io"
+					],
+					"path": [
+						"api",
+						"tradelines",
+						"tradelinesLoad"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "tradelinesInsert",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "1D2BFd2bbf7f4B44a149bf6116FE7574",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "e80916f07c9849cbaa11bbd2e3187631",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"creditorName\": \"AMEX\",\r\n  \"firstName\": \"Ganesan\",\r\n  \"lastName\": \"RAM\",\r\n  \"minPaymentPercentage\": 2,\r\n  \"balance\": 1363\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://strategicfs-tradeline-challenge.us-e2.cloudhub.io/api/tradelines/tradelinesInsert",
+					"protocol": "https",
+					"host": [
+						"strategicfs-tradeline-challenge",
+						"us-e2",
+						"cloudhub",
+						"io"
+					],
+					"path": [
+						"api",
+						"tradelines",
+						"tradelinesInsert"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "tradelinesDelete",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "1D2BFd2bbf7f4B44a149bf6116FE7574",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "e80916f07c9849cbaa11bbd2e3187631",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n \"Id\": 90\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://strategicfs-tradeline-challenge.us-e2.cloudhub.io/api/tradelines/tradelinesDelete",
+					"protocol": "https",
+					"host": [
+						"strategicfs-tradeline-challenge",
+						"us-e2",
+						"cloudhub",
+						"io"
+					],
+					"path": [
+						"api",
+						"tradelines",
+						"tradelinesDelete"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "tradelinesUpdate",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "1D2BFd2bbf7f4B44a149bf6116FE7574",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "e80916f07c9849cbaa11bbd2e3187631",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"Id\": 89,\r\n  \"creditorName\": \"CBNA\",\r\n  \"firstName\": \"Suman\",\r\n  \"lastName\": \"Tester79\",\r\n  \"minPaymentPercentage\": 2,\r\n  \"balance\": 1363\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://strategicfs-tradeline-challenge.us-e2.cloudhub.io/api/tradelines/tradelinesUpdate",
+					"protocol": "https",
+					"host": [
+						"strategicfs-tradeline-challenge",
+						"us-e2",
+						"cloudhub",
+						"io"
+					],
+					"path": [
+						"api",
+						"tradelines",
+						"tradelinesUpdate"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
