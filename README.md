@@ -1,6 +1,7 @@
 # strategicfs-tradeline-challenge
 
-Instructions
+Requirements:
+
 1. Please create a mulesoft endpoint that retrieves Json data from the following file of tradelines:
 https://raw.githubusercontent.com/StrategicFS/Recruitment/master/data.json
 Concept:(MuleSoft API/JSON)
