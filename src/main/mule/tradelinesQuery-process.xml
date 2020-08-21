@@ -42,16 +42,16 @@ else null
 				<ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
-{	
-	"Id": payload[0].id,
-	"creditorName": trim(payload[0].creditorName),
-    "firstName": trim(payload[0].firstName),
-    "lastName": trim(payload[0].lastName),
-    "minPaymentPercentage": trim(payload[0].minPaymentPercentage),
-    "balance": trim(payload[0].balance),
+payload map ((ind, index) -> {
+	"Id": ind.id,
+	"creditorName": trim(ind.creditorName),
+    "firstName": trim(ind.firstName),
+    "lastName": trim(ind.lastName),
+    "minPaymentPercentage": trim(ind.minPaymentPercentage),
+    "balance": trim(ind.balance),
     "status" : "Success",
     "transactionId" : vars.transactionId
-}]]></ee:set-payload>
+})]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
 			</when>
